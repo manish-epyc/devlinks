@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+.tab-active {
+  @apply bg-purple-100 text-purple-600;
+}
+/* .tab-active::before {
+  content: "";
+  @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] h-0.5 bg-purple-600 rounded-full; } */
