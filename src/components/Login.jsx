@@ -89,7 +89,6 @@ function Login() {
                 name="password"
                 placeholder="Enter your password"
                 className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
-                ref={passwordRef}
                 {...register("password", { required: true })}
               />
             </div>
