@@ -9,14 +9,22 @@ import { v4 as uuidv4 } from "uuid";
 import { CSS } from "@dnd-kit/utilities";
 import Header from "./Header";
 import { useFormData } from "../context/FormDataContext";
-
 import LeftPreviewMobile from "./LeftPreviewMobile";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router-dom";
 import { platforms } from "./GetIconByName";
+import { useForm } from "react-hook-form";
 
 const generateId = () => uuidv4();
 
-function SortableLinkItem({ id, link, onChange, onRemove }) {
+function SortableLinkItem({
+  id,
+  link,
+  onChange,
+  onRemove,
+  register,
+  error,
+  index,
+}) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
@@ -32,11 +40,12 @@ function SortableLinkItem({ id, link, onChange, onRemove }) {
       className="mb-4 p-4 border rounded-md bg-white shadow"
     >
       <div className="flex justify-between items-center">
-        <h2 className="font-semibold">Link #{link.index + 1}</h2>
+        <h2 className="font-semibold">Link #{index + 1}</h2>
         <button onClick={() => onRemove(id)} className="text-red-500 text-sm">
           Remove
         </button>
       </div>
+
       <select
         className="border p-2 rounded mt-2 w-full"
         value={link.platform}
@@ -48,16 +57,30 @@ function SortableLinkItem({ id, link, onChange, onRemove }) {
           </option>
         ))}
       </select>
+
       <input
-        className="border p-2 rounded mt-2 w-full"
+        className={`border p-2 rounded mt-2 w-full outline-0 ${
+          error ? "border-red-500" : ""
+        }`}
         placeholder="Enter link"
         value={link.url}
-        onChange={(e) => onChange(id, "url", e.target.value)}
+        {...register(`url_${id}`, {
+          required: "Link is required",
+          pattern: {
+            value:
+              /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/,
+            message: "Enter a valid URL",
+          },
+          onChange: (e) => onChange(id, "url", e.target.value),
+        })}
       />
+
+      {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+
       <button
         {...attributes}
         {...listeners}
-        className="text-xs text-gray-400 mt-2"
+        className="text-xs text-gray-400 mt-2 cursor-move"
       >
         Drag
       </button>
@@ -67,6 +90,14 @@ function SortableLinkItem({ id, link, onChange, onRemove }) {
 
 function Link() {
   const { links, setLinks, profile } = useFormData();
+  const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    trigger,
+  } = useForm();
 
   const addNewLink = () => {
     setLinks([
@@ -102,6 +133,14 @@ function Link() {
     }
   };
 
+  const onSubmit = async () => {
+    const isValid = await trigger();
+    const hasEmptyUrls = links.some((link) => !link.url.trim());
+
+    if (!isValid || hasEmptyUrls) return;
+    navigate("/profile-details");
+  };
+
   return (
     <div className="min-h-screen flex flex-col max-w-[1280px] mx-auto">
       <Header Page="link" />
@@ -129,35 +168,41 @@ function Link() {
             ＋ Add new link
           </button>
 
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={links.map((l) => l.id)}
-              strategy={verticalListSortingStrategy}
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              {links.map((link) => (
-                <SortableLinkItem
-                  key={link.id}
-                  id={link.id}
-                  link={link}
-                  onChange={updateLink}
-                  onRemove={removeLink}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
+              <SortableContext
+                items={links.map((l) => l.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {links.map((link, index) => (
+                  <SortableLinkItem
+                    key={link.id}
+                    id={link.id}
+                    link={link}
+                    index={index}
+                    onChange={updateLink}
+                    onRemove={removeLink}
+                    register={register}
+                    error={errors[`url_${link.id}`] || null}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
 
-          {links.length > 0 && (
-            <NavLink to="/profile-details">
+            {links.length > 0 && (
               <div className="flex justify-end">
-                <button className="border bg-purple-600 text-white font-semibold py-2.5 rounded-md hover:bg-purple-50 hover:text-purple-600 transition duration-200 mb-6 px-8 flex justify-end mt-12">
+                <button
+                  type="submit"
+                  className="border bg-purple-600 text-white font-semibold py-2.5 rounded-md hover:bg-purple-50 hover:text-purple-600 transition duration-200 mb-6 px-8 flex justify-end mt-12"
+                >
                   Next
                 </button>
               </div>
-            </NavLink>
-          )}
+            )}
+          </form>
         </div>
       </div>
     </div>

@@ -18,10 +18,6 @@ function CreateAccount() {
 
   const onSubmit = (data) => {
     console.log(data);
-
-    if (data.email == "test@gmail.com" && data.password == "123") {
-      console.log("login successfully");
-    }
   };
 
   return (
@@ -59,8 +55,12 @@ function CreateAccount() {
                 ref={emailRef}
                 {...register("email", { required: true })}
               />
-              {errors.email && <span>This field is required</span>}
             </div>
+            {errors.email && (
+              <span className="text-red-500 text-center text-sm mb-4">
+                This field is required
+              </span>
+            )}
           </div>
 
           <div className="mb-6 text-left">
@@ -83,8 +83,12 @@ function CreateAccount() {
                 ref={passwordRef}
                 {...register("password", { required: true })}
               />
-              {errors.password && <span>This field is required</span>}
             </div>
+            {errors.password && (
+              <span className="text-red-500 text-center text-sm mb-4">
+                This field is required
+              </span>
+            )}
           </div>
 
           <div className="mb-6 text-left">
@@ -107,8 +111,12 @@ function CreateAccount() {
                 ref={passwordRef}
                 {...register("confirmpassword", { required: true })}
               />
-              {errors.confirmpassword && <span>This field is required</span>}
             </div>
+            {errors.confirmpassword && (
+              <span className="text-red-500 text-center text-sm mb-4">
+                This field is required
+              </span>
+            )}
           </div>
 
           <button

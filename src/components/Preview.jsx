@@ -27,7 +27,7 @@ function Preview() {
               to="/link"
               className="border border-blue-600 text-blue-600 font-semibold py-2 px-6 rounded-md hover:bg-blue-50 transition duration-200 text-center w-full md:w-auto"
             >
-              Share Link
+              Back to editor
             </Link>
 
             <Link
