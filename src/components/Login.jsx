@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useForm } from "react-hook-form";
 
 import EmailIcon from "../assets/icon-email.svg?react";
@@ -8,8 +7,6 @@ import devLinkLogo from "../assets/logo.svg";
 import { Link, useNavigate } from "react-router";
 
 function Login() {
-  const emailRef = useRef("");
-  const passwordRef = useRef("");
   const navigate = useNavigate();
   const {
     register,

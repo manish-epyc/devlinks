@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useForm } from "react-hook-form";
 
 import EmailIcon from "../assets/icon-email.svg?react";
@@ -7,8 +6,6 @@ import devLinkLogo from "../assets/logo.svg";
 import { Link } from "react-router";
 
 function CreateAccount() {
-  const emailRef = useRef("");
-  const passwordRef = useRef("");
   const {
     register,
     handleSubmit,
