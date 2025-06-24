@@ -9,7 +9,7 @@ import ProfileDetails from "./components/ProfileDetails";
 import Preview from "./components/Preview";
 import { FormDataProvider } from "./context/FormDataContext";
 import { AuthProvider } from "./context/AuthContext";
-import RedirectIfLoggedIn from "./components/Auth/RedirectIfLoggedIn";
+import RedirectIfLoggedIn from "./components/auth/RedirectIfLoggedIn";
 import PublicProfile from "./components/PublicProfile";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
