@@ -4,32 +4,42 @@ import { supabase } from "../lib/supabaseClient";
 import LeftPreviewMobile from "./LeftPreviewMobile";
 import devLinkLogo from "../assets/logo.svg";
 import { platforms } from "./GetIconByName";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchProfile = async (profile_link) => {
+  const { data, error } = await supabase
+    .from("profile_details")
+    .select("details")
+    .eq("profile_link", profile_link)
+    .single();
+
+  if (error) throw error;
+  return data.details;
+};
 
 function PublicProfile() {
   const { profile_link } = useParams();
-  const [profileData, setProfileData] = useState(null);
+  const {
+    data: profileData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["profile", profile_link],
+    queryFn: () => fetchProfile(profile_link),
+    enabled: !!profile_link,
+  });
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const { data, error } = await supabase
-        .from("profile_details")
-        .select("details")
-        .eq("profile_link", profile_link)
-        .single();
-
-      if (error) {
-        console.error("Profile not found", error);
-      } else {
-        setProfileData(data.details);
-      }
-    };
-
-    fetchProfile();
-  }, [profile_link]);
-
-  if (!profileData) {
+  if (isLoading) {
     return (
       <div className="text-center text-gray-500 mt-20">Loading profile...</div>
+    );
+  }
+
+  if (isError || !profileData) {
+    return (
+      <div className="text-center text-red-600 mt-20">
+        Profile not found or an error occurred.
+      </div>
     );
   }
 

@@ -11,24 +11,29 @@ import { FormDataProvider } from "./context/FormDataContext";
 import { AuthProvider } from "./context/AuthContext";
 import RedirectIfLoggedIn from "./components/Auth/RedirectIfLoggedIn";
 import PublicProfile from "./components/PublicProfile";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <AuthProvider>
-      <FormDataProvider>
-        <BrowserRouter>
-          <RedirectIfLoggedIn />
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="create-account" element={<CreateAccount />} />
-            <Route path="link" element={<Link />} />
-            <Route path="profile-details" element={<ProfileDetails />} />
-            <Route path="preview" element={<Preview />} />
-            <Route path="profile/:profile_link" element={<PublicProfile />} />
-          </Routes>
-        </BrowserRouter>
-      </FormDataProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <FormDataProvider>
+          <BrowserRouter>
+            <RedirectIfLoggedIn />
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="create-account" element={<CreateAccount />} />
+              <Route path="link" element={<Link />} />
+              <Route path="profile-details" element={<ProfileDetails />} />
+              <Route path="preview" element={<Preview />} />
+              <Route path="profile/:profile_link" element={<PublicProfile />} />
+            </Routes>
+          </BrowserRouter>
+        </FormDataProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
