@@ -5,8 +5,13 @@ import PasswordIcon from "../assets/icon-password.svg?react";
 import devLinkLogo from "../assets/logo.svg";
 
 import { Link, useNavigate } from "react-router";
+import { supabase } from "../lib/supabaseClient";
+import { useState } from "react";
+
 
 function Login() {
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const navigate = useNavigate();
   const {
     register,
@@ -16,22 +21,59 @@ function Login() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const { data: signInData, error } =
+        await supabase.auth.signInWithPassword({
+          email: data.email.trim(),
+          password: data.password.trim(),
+        });
 
-    if (data.email == "test@gmail.com" && data.password == "123") {
-      console.log("login successfully");
-      navigate("/link");
-    } else {
+      if (error) {
+        setError("serverError", {
+          type: "manual",
+          message: "Incorrect email or password. Please try again.",
+        });
+        return;
+      }
+
+      if (data) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          navigate("/link");
+        }, 2000);
+      }
+    } catch (err) {
+      console.error(err);
       setError("serverError", {
         type: "manual",
-        message: "Incorrect email or password. Please try again.",
+        message: "Something went wrong. Try again.",
       });
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
+      {showSuccess && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-4 rounded-lg bg-green-600 text-white text-sm shadow-lg animate-fade-in-out z-50">
+          <svg
+            className="h-5 w-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-.758l3.65-3.65M11.318 12.71a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101m.758.758l-3.65 3.65"
+            ></path>
+          </svg>
+          <span>Success. You’re now logged in.</span>
+        </div>
+      )}
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center">
         <div className="mb-8">
           <img src={devLinkLogo} alt="Devlinks Logo" className="mx-auto h-12" />

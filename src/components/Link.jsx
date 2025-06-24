@@ -10,7 +10,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Header from "./Header";
 import { useFormData } from "../context/FormDataContext";
 import LeftPreviewMobile from "./LeftPreviewMobile";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { platforms } from "./GetIconByName";
 import { useForm } from "react-hook-form";
 
