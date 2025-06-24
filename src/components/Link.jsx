@@ -153,7 +153,7 @@ function Link() {
           />
         </div>
 
-        <div className="lg:w-3/5 bg-white rounded-lg shadow-md p-6">
+        <div className="lg:w-3/5 bg-white rounded-lg shadow-md p-6 overflow-x-hidden">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Customize your links
           </h1>

@@ -10,23 +10,53 @@ import { platforms } from "./GetIconByName";
 async function saveProfile(profile, links, userId) {
   const profileLink = uuidv4();
 
-  const { error } = await supabase.from("profile_details").insert([
-    {
-      user_id: userId,
-      profile_link: profileLink,
-      details: {
-        ...profile,
-        links: links.map(({ id, platform, url }) => ({ id, platform, url })),
-      },
-    },
-  ]);
+  const { data: existingProfiles, error: selectError } = await supabase
+    .from("profile_details")
+    .select("*")
+    .eq("user_id", userId);
 
-  if (error) {
-    console.error("Error saving profile:", error);
+  if (selectError) {
+    console.error("Error checking existing profiles:", selectError);
     return null;
   }
 
-  return profileLink;
+  const existing = existingProfiles.find(
+    (entry) => entry.details?.email === profile.email
+  );
+
+  const payload = {
+    user_id: userId,
+    profile_link: existing?.profile_link || profileLink,
+    details: {
+      ...profile,
+      links: links.map(({ id, platform, url }) => ({ id, platform, url })),
+    },
+  };
+
+  if (existing) {
+    const { error: updateError } = await supabase
+      .from("profile_details")
+      .update(payload)
+      .eq("id", existing.id);
+
+    if (updateError) {
+      console.error("Error updating profile:", updateError);
+      return null;
+    }
+
+    return existing.profile_link;
+  } else {
+    const { error: insertError } = await supabase
+      .from("profile_details")
+      .insert([payload]);
+
+    if (insertError) {
+      console.error("Error inserting profile:", insertError);
+      return null;
+    }
+
+    return profileLink;
+  }
 }
 
 async function handleSaveProfile(profile, links, user, handleShowMessage) {

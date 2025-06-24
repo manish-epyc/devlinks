@@ -29,7 +29,7 @@ function CreateAccount() {
         error: false,
         message: "",
       });
-    }, 2000);
+    }, 4000);
   };
 
   async function handleCreateAccount(formData) {
