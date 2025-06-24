@@ -23,13 +23,13 @@ function CreateAccount() {
 
   const handleMessage = (obj) => {
     setShowMessage((prev) => ({ ...prev, ...obj }));
-    setTimeout(() => {
-      setShowMessage({
-        success: false,
-        error: false,
-        message: "",
-      });
-    }, 4000);
+    // setTimeout(() => {
+    //   setShowMessage({
+    //     success: false,
+    //     error: false,
+    //     message: "",
+    //   });
+    // }, 4000);
   };
 
   async function handleCreateAccount(formData) {

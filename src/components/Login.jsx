@@ -37,13 +37,13 @@ function Login() {
         return;
       }
 
-      if (data) {
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          navigate("/link");
-        }, 2000);
-      }
+      navigate("/link");
+      // if (data) {
+      //   setShowSuccess(true);
+      //   setTimeout(() => {
+      //     setShowSuccess(false);
+      //   }, 2000);
+      // }
     } catch (err) {
       console.error(err);
       setError("serverError", {
