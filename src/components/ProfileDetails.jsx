@@ -4,6 +4,8 @@ import { useFormData } from "../context/FormDataContext";
 import Header from "./Header";
 import LeftPreviewMobile from "./LeftPreviewMobile";
 import { platforms } from "./GetIconByName";
+import { v4 as uuidv4 } from "uuid";
+import { supabase } from "../lib/supabaseClient";
 
 function ProfileDetails() {
   const { profile, setProfile, links } = useFormData();
@@ -24,9 +26,32 @@ function ProfileDetails() {
 
   const imageFileList = watch("image");
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const file = data.image?.[0];
-    const imageURL = file ? URL.createObjectURL(file) : profile.image;
+    let imageURL = profile.image;
+
+    if (file) {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `public/${uuidv4()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error(
+          "Image upload failed:",
+          uploadError.message || uploadError
+        );
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      imageURL = publicUrlData.publicUrl;
+    }
 
     setProfile({
       ...profile,
