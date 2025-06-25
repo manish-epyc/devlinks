@@ -5,6 +5,7 @@ import devLinkLogo from "../assets/logo.svg";
 import { Link } from "react-router";
 import { supabase } from "../lib/supabaseClient";
 import { useState } from "react";
+import { ThreeDot } from "react-loading-indicators";
 
 function CreateAccount() {
   const [showMessage, setShowMessage] = useState({
@@ -12,6 +13,7 @@ function CreateAccount() {
     error: false,
     message: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -38,48 +40,99 @@ function CreateAccount() {
     const confirmpassword = formData.confirmpassword?.trim();
 
     if (!email || !password || !confirmpassword) {
-      throw new Error("All fields are required.");
+      // throw new Error("All fields are required.");
+      handleMessage({
+        success: false,
+        error: true,
+        message: "All fields are required.",
+      });
+      return;
     }
 
     if (password !== confirmpassword) {
-      throw new Error("Passwords do not match.");
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (error) {
-      // console.error(error.message);
       handleMessage({
         success: false,
         error: true,
-        message: "Something went wrong.",
+        message: "Passwords does not match.",
       });
-    } else if (!data.user) {
-      handleMessage({
-        success: false,
-        error: true,
-        message:
-          "This email is already registered. Check your inbox to confirm.",
+      return;
+    }
+
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email_id", email)
+      .single();
+
+    if (!existingUser) {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
       });
+
+      const user = data.user;
+
+      if (user) {
+        const { error: insertError } = await supabase
+          .from("users") // your custom table
+          .insert([
+            {
+              id: user.id, // must match type uuid
+              email_id: user.email,
+            },
+          ]);
+
+        if (insertError) {
+          console.error("Insert error:", insertError.message);
+          return { success: false };
+        }
+      }
+
+      if (error) {
+        // console.error(error.message);
+        handleMessage({
+          success: false,
+          error: true,
+          message: error.message,
+        });
+      } else if (!data.user) {
+        handleMessage({
+          success: false,
+          error: true,
+          message:
+            "This email is already registered. Check your inbox to confirm.",
+        });
+      } else {
+        handleMessage({
+          success: true,
+          error: false,
+          message: "Account created. Check your email to confirm.",
+        });
+
+        return { success: true };
+      }
     } else {
       handleMessage({
-        success: true,
-        error: false,
-        message: "Account created. Check your email to confirm.",
+        success: false,
+        error: true,
+        message: "User with this email Id  already exists",
       });
-
-      return { success: true };
+      return { success: false };
     }
+
+    // if (error) {
+    //   handleMessage({
+    //     success: false,
+    //     error: true,
+    //     message: error.message,
+    //   });
+    //   // throw new Error(error.message);
+    // }
   }
 
   const onSubmit = async (formData) => {
+    setIsLoading(true);
+
     try {
       await handleCreateAccount(formData);
       // setShowMessage(true);
@@ -88,7 +141,7 @@ function CreateAccount() {
       alert(err.message);
     }
 
-    console.log(showMessage);
+    setIsLoading(false);
   };
 
   return (
@@ -213,9 +266,10 @@ function CreateAccount() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 h-12 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 h-12 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 gap-2 flex items-center justify-center cursor-pointer"
           >
             Create Account
+            {isLoading && <ThreeDot color="#ffffff" size="small" />}
           </button>
         </form>
 
